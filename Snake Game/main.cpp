@@ -3,12 +3,12 @@
 #include "board.cpp"
 
 int blockside = 41;
-sf::Vector2 <int> snakePos;
 
 
 int main() {
 
-	int abc = 0, def = 0;
+	int snakeX = -1, snakeY = 1;
+	int snakePosX = 0, snakePosY = 0;
 
 	//Scale of sprites
 	double spr_scale = 0.0214;
@@ -117,6 +117,22 @@ int main() {
 
 
 		//Drawing snake
+		snakePosX += 4 * snakeX;
+		snakePosY += 4 * snakeY;
+
+		if (snakePosX > 571)
+			snakePosX = 0;
+		if (snakePosY > 571)
+			snakePosY = 0;
+		if (snakePosX < 0)
+			snakePosX = 571;
+		if (snakePosY < 0)
+			snakePosY = 571;
+
+
+		snakeHeadSpr.setPosition(snakePosX, snakePosY);
+
+		mainWin.draw(snakeHeadSpr);
 
 
 
@@ -128,6 +144,35 @@ int main() {
 			if (mainEvent.type == sf::Event::Closed) {
 			
 				mainWin.close();
+			
+			}
+
+			if (mainEvent.type == sf::Event::KeyPressed) {
+			
+				std::cout << mainEvent.key.code << std::endl;
+				switch (mainEvent.key.code) {
+				
+				case 71:
+					snakeX = -1;
+					snakeY = 0;
+					break;
+
+				case 73:
+					snakeY = -1;
+					snakeX = 0;
+					break;
+
+				case 72:
+					snakeX = 1;
+					snakeY = 0;
+					break;
+
+				case 74:
+					snakeY = 1;
+					snakeX = 0;
+					break;
+				
+				}
 			
 			}
 

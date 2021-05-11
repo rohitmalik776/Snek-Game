@@ -8,7 +8,6 @@ class board {
 
 public:
 
-	sf::Sprite *grass1, *grass2;
 	sf::RectangleShape line;
 
 	
@@ -70,7 +69,7 @@ class snake {
 
 public:
 
-	sf::Sprite snakeHead, snakeBody;
+	sf::Sprite *snakeHead, *snakeBody;
 
 	void moveRight() {
 	
