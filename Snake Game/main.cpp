@@ -1,26 +1,23 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <queue>
 #include <vector>
 #include "board.cpp"
 #include "food.cpp"
-int blockside = 41;
+#include "snake_head.cpp"
+#include "snake_body.cpp"
 
+int blockside = 41;
+double spr_scale = 0.0856;
+std::vector<SnakeBody> SnakeBody::bodyArray = {};
+sf::Texture SnakeBody::texture = sf::Texture();
+sf::Image SnakeBody::image = sf::Image();
 
 int main() {
 	srand(time(0));
-	//A queue to make the body follow the head
-	std::queue<sf::Vector2<int>> headPos;
-	for (int i = 0; i < 11; i++) 
-	{
-		sf::Vector2<int> origin(0, 0);
-		headPos.push(origin);
-	}
-	int snakeX = 0, snakeY = 0;
-	int snakePosX = 0, snakePosY = 0;
 	//Scale of sprites
-	double spr_scale = 0.0214;
-	spr_scale *= 4;
 	//Setting up Window
 	sf::RenderWindow mainWin(sf::VideoMode(574, 574), "snek", sf::Style::Close);
 	mainWin.setFramerateLimit(60);
@@ -69,11 +66,18 @@ int main() {
 		std::cout << "Error loading 'Resources/snake_down.bmp'\n";
 		return 0;
 	}
-	if (!snakeBodyImg.loadFromFile("Resources/snake_body.png"))
+
+	if (!SnakeBody::image.loadFromFile("Resources/snake_body.png"))
 	{
 		std::cout << "Error loading 'Resources/snake_body.bmp'\n";
 		return 0;
 	}
+	SnakeBody::texture.loadFromImage(SnakeBody::image);
+	//Snake head
+	SnakeHead snakeHead(snakeHeadRight);
+	//Snake body, 1 block
+	SnakeBody::bodyArray.push_back(SnakeBody(0, 0));
+
 	//Making snake body vertical sprite
 	sf::Image snakeBodyVert;
 	if (!(snakeBodyVert.loadFromFile("Resources/snake_body_vert.png")))
@@ -90,16 +94,6 @@ int main() {
 	snakeHeadSpr.setTexture(snakeHeadTex);
 	snakeHeadSpr.setPosition(0, 0);
 	snakeHeadSpr.setScale(sf::Vector2f(spr_scale, spr_scale));
-	//Making snake body sprite
-	snakeBodySpr.setTexture(snakeBodyTex);
-	snakeBodySpr.setPosition(0, 0);
-	snakeBodySpr.setScale(sf::Vector2f(spr_scale, spr_scale));
-	sf::Texture snakeBodyVertTex;
-	snakeBodyVertTex.loadFromImage(snakeBodyVert);
-	sf::Sprite snakeBodyVertSpr;
-	snakeBodyVertSpr.setTexture(snakeBodyVertTex);
-	snakeBodyVertSpr.setPosition(0, 0);
-	snakeBodyVertSpr.setScale(sf::Vector2f(spr_scale, spr_scale));
 	//Making textures
 	sf::Texture grassLightTex;
 	grassLightTex.loadFromImage(grassLightImg);
@@ -115,20 +109,6 @@ int main() {
 	grassDarkSpr.setTexture(grassDarkTex);
 	grassDarkSpr.setScale(spr_scale, spr_scale);
 	grassDarkSpr.setPosition(0, 0);
-	//Making snake body
-	std::vector <snakeBody> snakeBodyArr;
-	snakeBody temp(snakeBodySpr);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
 
 	//Making food
 	sf::Image foodImage;
@@ -170,45 +150,58 @@ int main() {
 
 
 		//Storing snake's last seen position
-		int headLastSeenX = snakePosX, headLastSeenY = snakePosY;
+		int headLastSeenX = snakeHead.posX, headLastSeenY = snakeHead.posY;
 
 
 		//Drawing snake
-		snakePosX += 4 * snakeX;			//snakeX = -1 or 1
-		snakePosY += 4 * snakeY;
-		// std:: cout << snakePosX << std::endl;
-		if ((food.x > snakePosX - 20) && (food.x < snakePosX + 20) && (food.y > snakePosY - 20) && (food.y < snakePosY + 20)) {
+		snakeHead.posX += 4 * snakeHead.dirX;			//snakeHead.dirX = -1 or 1
+		snakeHead.posY += 4 * snakeHead.dirY;
+		// std:: cout << snakeHead.posX << std::endl;
+		
+		
+		
+		if ((food.x > snakeHead.posX - 20) && (food.x < snakeHead.posX + 20) && (food.y > snakeHead.posY - 20) && (food.y < snakeHead.posY + 20)) {
 			std::cout << "Snake and food's coordinates clashed!\n";
 			// std::cout << "food.x: " << food.x << std::endl;
+			SnakeBody::increaseSize();
 			food.changePosition();
-			// Working here
-			std::cout << "snakePosX: " << snakePosX << std::endl;
-			sf::Sprite tempSnakeBodySprite;
-			tempSnakeBodySprite.setTexture(snakeBodyVertTex);
-			tempSnakeBodySprite.setScale(sf::Vector2f(spr_scale, spr_scale));
-			snakeBodyArr.push_back(snakeBody(tempSnakeBodySprite, snakePosX, snakePosY));
+			std::cout << "snakeHead.posX: " << snakeHead.posX << std::endl;
 		}
 
-		if (snakePosX > 571)
-			snakePosX = 0;
-		if (snakePosY > 571)
-			snakePosY = 0;
-		if (snakePosX < 0)
-			snakePosX = 571;
-		if (snakePosY < 0)
-			snakePosY = 571;
+		if (snakeHead.posX > 571)
+			snakeHead.posX = 0;
+		if (snakeHead.posY > 571)
+			snakeHead.posY = 0;
+		if (snakeHead.posX < 0)
+			snakeHead.posX = 571;
+		if (snakeHead.posY < 0)
+			snakeHead.posY = 571;
 
 
-		snakeHeadSpr.setPosition(snakePosX, snakePosY);
+		snakeHeadSpr.setPosition(snakeHead.posX, snakeHead.posY);
 
+
+		// Body follow head function
+		SnakeBody::bodyArray[0].sprite.setPosition(snakeHead.headPos.front().x, snakeHead.headPos.front().y);
+		SnakeBody::bodyArray[0].bodyQue.push(snakeHead.headPos.front());
 
 		//Updating snake body position
-		headPos.push(sf::Vector2<int>(snakePosX, snakePosY));
-		sf::Vector2<int> headLast = headPos.front();
-		headPos.pop();
-		snakeBodyArr[0].body.setPosition(headLast.x, headLast.y);
-		snakeBodyArr[0].bodyQue.push(headLast);
+		snakeHead.headPos.push(sf::Vector2<int>(snakeHead.posX, snakeHead.posY));
+		sf::Vector2<int> headLast = snakeHead.headPos.front();
+		snakeHead.headPos.pop();
 
+		// Updating snake body position
+		for (int i = 1; i < SnakeBody::bodyArray.size(); i++) {
+			//TODO:
+			//1. Push new position to current (previous.back)
+			//2. Move sprite to current.front
+			//3. Pop front
+			SnakeBody::bodyArray[i].bodyQue.push(SnakeBody::bodyArray[i-1].bodyQue.back());
+			SnakeBody::bodyArray[i].updatePos();
+			SnakeBody::bodyArray[i].bodyQue.pop();
+		}
+
+		/*
 		//Updating snake body texture on direction change
 		//Vertical set
 		for (int i = 0; i < snakeBodyArr.size(); i++)
@@ -237,16 +230,17 @@ int main() {
 			snakeBodyArr[i - 1].bodyQue.pop();
 			snakeBodyArr[i].bodyQue.push(sf::Vector2i(currPos.x, currPos.y));
 		}
-
+		*/
 		//Drawing food
 		mainWin.draw(food.foodSprite);
 
 		//Drawing snake head
 		mainWin.draw(snakeHeadSpr);
+
 		//Drawing snake body
-		for (int i = 0; i < snakeBodyArr.size() - 1; i++)
+		for (int i = 0; i < SnakeBody::bodyArray.size(); i++)
 		{
-			mainWin.draw((snakeBodyArr[i].body));
+			mainWin.draw((SnakeBody::bodyArray[i].sprite));
 		}
 
 		mainWin.display();
@@ -263,26 +257,26 @@ int main() {
 				switch (mainEvent.key.code) {
 
 				case 71: //Left
-					snakeX = -1;
-					snakeY = 0;
+					snakeHead.dirX = -1;
+					snakeHead.dirY = 0;
 					snakeHeadTex.loadFromImage(snakeHeadLeft);
 					break;
 
 				case 73: //Up
-					snakeY = -1;
-					snakeX = 0;
+					snakeHead.dirY = -1;
+					snakeHead.dirX = 0;
 					snakeHeadTex.loadFromImage(snakeHeadUp);
 					break;
 
 				case 72: //Right
-					snakeX = 1;
-					snakeY = 0;
+					snakeHead.dirX = 1;
+					snakeHead.dirY = 0;
 					snakeHeadTex.loadFromImage(snakeHeadRight);
 					break;
 
 				case 74: //Down
-					snakeY = 1;
-					snakeX = 0;
+					snakeHead.dirY = 1;
+					snakeHead.dirX = 0;
 					snakeHeadTex.loadFromImage(snakeHeadDown);
 					break;
 				}

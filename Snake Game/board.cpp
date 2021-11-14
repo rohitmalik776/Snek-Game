@@ -62,30 +62,3 @@ public:
 	}
 
 };
-
-
-
-class snakeBody
-{
-public:
-	sf::Sprite body;
-	std::queue<sf::Vector2<int>> bodyQue;
-
-	snakeBody(sf::Sprite tempBody)
-	{
-		body = tempBody;
-		for (int i = 0; i < 11; i++)
-		{
-			bodyQue.push(sf::Vector2<int>(0, 0));
-		}
-	}
-	snakeBody(sf::Sprite tempBody, int x, int y) {
-		body = tempBody;
-		for (int i = 0; i < 11; i++)
-		{
-			bodyQue.push(sf::Vector2<int>(x, y));
-			body.setPosition(x, y);
-		}
-		std::cout << "set the position of body to: " << x << std::endl;
-	}
-};
