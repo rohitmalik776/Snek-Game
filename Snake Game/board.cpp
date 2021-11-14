@@ -1,6 +1,7 @@
 #pragma once;
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <queue>
 
 
 
@@ -10,8 +11,8 @@ public:
 
 	sf::RectangleShape line;
 
-	
-	void drawGrass(sf::RenderWindow* mainWin , sf::Sprite* grassLight, sf::Sprite* grassDark)
+
+	void drawGrass(sf::RenderWindow* mainWin, sf::Sprite* grassLight, sf::Sprite* grassDark)
 	{
 		for (int x = 0, j = 0; x < 574; x += 41, j++)
 		{
@@ -36,7 +37,7 @@ public:
 
 
 		//Drawing Grid
-		line.setFillColor(sf::Color(0,0,0, 50));
+		line.setFillColor(sf::Color(0, 0, 0, 50));
 		line.setSize(sf::Vector2f(551, 01));
 
 		int x = 0, y = 0;
@@ -45,40 +46,46 @@ public:
 		line.setPosition(x, 0);
 
 		//Drawing Vertical Lines
-		for ( ; y <= 550 ; y += 11 ) 
+		for (; y <= 550; y += 11)
 		{
 			line.setPosition(0, y);
 			mainWin->draw(line);
 		}
 		//Drawing Horizontal Lines
 		line.setSize(sf::Vector2f(1, 551));
-		for (; x <= 550; x += 11) 
+		for (; x <= 550; x += 11)
 		{
 			line.setPosition(x, 0);
 			mainWin->draw(line);
 		}
-	
+
 	}
 
 };
 
 
 
-
-class snake {
-
+class snakeBody
+{
 public:
+	sf::Sprite body;
+	std::queue<sf::Vector2<int>> bodyQue;
 
-	sf::Sprite *snakeHead, *snakeBody;
-
-	void moveRight() {
-	
-		
-	
+	snakeBody(sf::Sprite tempBody)
+	{
+		body = tempBody;
+		for (int i = 0; i < 11; i++)
+		{
+			bodyQue.push(sf::Vector2<int>(0, 0));
+		}
 	}
-
-
-
-
-
+	snakeBody(sf::Sprite tempBody, int x, int y) {
+		body = tempBody;
+		for (int i = 0; i < 11; i++)
+		{
+			bodyQue.push(sf::Vector2<int>(x, y));
+			body.setPosition(x, y);
+		}
+		std::cout << "set the position of body to: " << x << std::endl;
+	}
 };
