@@ -5,7 +5,7 @@
 #include "board.cpp"
 #include "food.cpp"
 int blockside = 41;
-
+int score = 0;
 
 int main() {
 	srand(time(0));
@@ -81,6 +81,13 @@ int main() {
 		std::cout << "Couldn't load Snake body vertical << endl";
 		return 0;
 	}
+	sf::Image specialImg;
+	if (!(specialImg.loadFromFile("Resources/special.png"))) {
+		std::cout << "Couldn't load special image << endl";
+		return 0;
+	}
+	sf::Texture specialTex;
+	specialTex.loadFromImage(specialImg);
 	//Making snake texture
 	sf::Texture snakeHeadTex, snakeBodyTex;
 	snakeHeadTex.loadFromImage(snakeHeadRight);
@@ -118,18 +125,9 @@ int main() {
 	//Making snake body
 	std::vector <snakeBody> snakeBodyArr;
 	snakeBody temp(snakeBodySpr);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-	snakeBodyArr.push_back(temp);
-
+	for(int i=0; i<20; i++)
+		snakeBodyArr.push_back(temp);
+	
 	//Making food
 	sf::Image foodImage;
 	if (!foodImage.loadFromFile("Resources/food.png"))
@@ -183,10 +181,11 @@ int main() {
 			food.changePosition();
 			// Working here
 			std::cout << "snakePosX: " << snakePosX << std::endl;
-			sf::Sprite tempSnakeBodySprite;
-			tempSnakeBodySprite.setTexture(snakeBodyVertTex);
-			tempSnakeBodySprite.setScale(sf::Vector2f(spr_scale, spr_scale));
-			snakeBodyArr.push_back(snakeBody(tempSnakeBodySprite, snakePosX, snakePosY));
+			//transparent here
+			if (score < snakeBodyArr.size()) {
+				snakeBodyArr[score].isVisible = true;
+				score++;
+			}
 		}
 
 		if (snakePosX > 571)
@@ -246,7 +245,7 @@ int main() {
 		//Drawing snake body
 		for (int i = 0; i < snakeBodyArr.size() - 1; i++)
 		{
-			mainWin.draw((snakeBodyArr[i].body));
+			mainWin.draw((snakeBodyArr[i].getBody()));
 		}
 
 		mainWin.display();
