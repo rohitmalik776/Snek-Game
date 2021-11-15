@@ -14,13 +14,16 @@ double spr_scale = 0.0856;
 std::vector<SnakeBody> SnakeBody::bodyArray = {};
 sf::Texture SnakeBody::texture = sf::Texture();
 sf::Image SnakeBody::image = sf::Image();
+int SnakeHead::dirX = 0;
+int SnakeHead::dirY = 0;
+int SnakeBody::arrSize = 0;
 
 int main() {
 	srand(time(0));
 	//Scale of sprites
 	//Setting up Window
 	sf::RenderWindow mainWin(sf::VideoMode(574, 574), "snek", sf::Style::Close);
-	mainWin.setFramerateLimit(60);
+	mainWin.setFramerateLimit(20);
 	//Importing Images
 	//Importing background images
 	sf::Image grassLightImg;
@@ -184,10 +187,11 @@ int main() {
 		// Body follow head function
 		SnakeBody::bodyArray[0].sprite.setPosition(snakeHead.headPos.front().x, snakeHead.headPos.front().y);
 		SnakeBody::bodyArray[0].bodyQue.push(snakeHead.headPos.front());
+		SnakeBody::bodyArray[0].bodyQue.pop();
 
 		//Updating snake body position
-		snakeHead.headPos.push(sf::Vector2<int>(snakeHead.posX, snakeHead.posY));
-		sf::Vector2<int> headLast = snakeHead.headPos.front();
+		snakeHead.headPos.push(sf::Vector2<float>(snakeHead.posX, snakeHead.posY));
+		sf::Vector2<float> headLast = snakeHead.headPos.front();
 		snakeHead.headPos.pop();
 
 		// Updating snake body position
@@ -196,9 +200,27 @@ int main() {
 			//1. Push new position to current (previous.back)
 			//2. Move sprite to current.front
 			//3. Pop front
-			SnakeBody::bodyArray[i].bodyQue.push(SnakeBody::bodyArray[i-1].bodyQue.back());
+
+			sf::Vector2f temp = SnakeBody::bodyArray[i - 1].bodyQue.back();
 			SnakeBody::bodyArray[i].updatePos();
 			SnakeBody::bodyArray[i].bodyQue.pop();
+			SnakeBody::bodyArray[i-1].prevDirY.push(SnakeHead::dirY);
+			SnakeBody::bodyArray[i-1].prevDirX.push(SnakeHead::dirX);
+			temp.x += SnakeBody::bodyArray[i-1].prevDirX.front() * 40;
+			temp.y += SnakeBody::bodyArray[i-1].prevDirY.front() * 40;
+			SnakeBody::bodyArray[i].prevDirX.pop();
+			SnakeBody::bodyArray[i].prevDirY.pop();
+			SnakeBody::bodyArray[i].bodyQue.push(temp);
+			
+			
+			//std::cout << i - 1 << " size: " << SnakeBody::bodyArray[i - 1].bodyQue.size() << std::endl;
+			//std::cout << i << " size: " << SnakeBody::bodyArray[i - 1].bodyQue.size() << std::endl;
+			// std::cout << "Pushed: " << i << " " << SnakeBody::bodyArray[i - 1].bodyQue.back().x << std::endl;
+			//std::cout << "back of " << i - 1 << " " << SnakeBody::bodyArray[i - 1].bodyQue.back().x << std::endl;
+			//std::cout << "front of " << i - 1 << " " << SnakeBody::bodyArray[i - 1].bodyQue.front().x << std::endl;
+			std::cout << "back - front x" << i << " " << SnakeBody::bodyArray[i - 1].bodyQue.back().x - SnakeBody::bodyArray[i].bodyQue.front().x << std::endl;
+			std::cout << "back - front y" << i << " " << SnakeBody::bodyArray[i - 1].bodyQue.back().y - SnakeBody::bodyArray[i].bodyQue.front().y << std::endl;
+
 		}
 
 		/*
