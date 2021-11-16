@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="board.cpp" />
     <ClCompile Include="food.cpp" />
+    <ClCompile Include="linked_list.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pause_prompt.cpp" />
     <ClCompile Include="snake_body.cpp" />

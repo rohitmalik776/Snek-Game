@@ -2,6 +2,7 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+#include <list>
 
 #include "snake_body.cpp"
 #include "board.cpp"
@@ -177,10 +178,8 @@ MAINEVENT:
 
 
 	while (mainWin.isOpen()) {
-
-
-		
-		if (currentGameState == GameState::GameOver) {
+	
+		while (currentGameState == GameState::GameOver) {
 			// Resetting snake body
 			for (int i = 0; i < score; i++) {
 				snakeBodyArr[i].isVisible = false;
@@ -190,7 +189,17 @@ MAINEVENT:
 			// Resetting snake's position multipliers
 			snakeX = 0;
 			snakeY = 0;
-			goto MAINEVENT;
+			while (mainWin.pollEvent(mainEvent)) {
+				if (mainEvent.type == sf::Event::Closed) {
+					return 0;
+				}
+				if (mainEvent.key.code == sf::Keyboard::R) {
+					currentGameState = GameState::Running;
+					break;
+				}
+			}
+			if(currentGameState != GameState::GameOver)
+				goto MAINEVENT;
 		}
 		
 
@@ -246,23 +255,23 @@ MAINEVENT:
 			}
 		}
 
-		if (snakePosX > 571 ) {
+		if (snakePosX > 510 ) {
 			currentGameState = GameState::GameOver;
-			snakePosX = 0;
+			//snakePosX = 0;
 		}
-		if (snakePosY > 571 )
+		if (snakePosY > 510 )
 		{
 			currentGameState = GameState::GameOver;
-			snakePosY = 0;
+			//snakePosY = 0;
 		}
-		if (snakePosX < 0) {
+		if (snakePosX < 25) {
 			currentGameState = GameState::GameOver;
-			snakePosX = 571;
+			//snakePosX = 571;
 		}
-		if (snakePosY < 0)
+		if (snakePosY < 25)
 		{
 			currentGameState = GameState::GameOver;
-			snakePosY = 571;
+			//snakePosY = 571;
 		}
 
 		snakeHeadSpr.setPosition(snakePosX, snakePosY);
