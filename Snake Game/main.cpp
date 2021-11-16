@@ -2,13 +2,34 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+
+#include "snake_body.cpp"
 #include "board.cpp"
 #include "food.cpp"
+#include "pause_prompt.cpp"
 int blockside = 41;
 int score = 0;
 
+enum class GameState {
+	Running,
+	Paused,
+	GameOver
+};
+
 int main() {
 	srand(time(0));
+	GameState currentGameState = GameState::Running;
+
+	//Importing fonts
+	sf::Font font;
+	if(!(font.loadFromFile("Resources/Raleway-Bold.ttf"))){
+		std::cout << "Error loading font file!" << std::endl;
+	}
+	sf::Text scoreText;
+	scoreText.setFont(font);
+	scoreText.setFillColor(sf::Color::Black);
+	scoreText.setPosition(530, 0);
+	scoreText.setCharacterSize(30);
 	//A queue to make the body follow the head
 	std::queue<sf::Vector2<int>> headPos;
 	for (int i = 0; i < 11; i++) 
@@ -17,7 +38,7 @@ int main() {
 		headPos.push(origin);
 	}
 	int snakeX = 0, snakeY = 0;
-	int snakePosX = 0, snakePosY = 0;
+	int snakePosX = 100, snakePosY = 100;
 	//Scale of sprites
 	double spr_scale = 0.0214;
 	spr_scale *= 4;
@@ -95,7 +116,7 @@ int main() {
 	//Making snake head sprite
 	sf::Sprite snakeHeadSpr, snakeBodySpr;
 	snakeHeadSpr.setTexture(snakeHeadTex);
-	snakeHeadSpr.setPosition(0, 0);
+	snakeHeadSpr.setPosition(100, 100);
 	snakeHeadSpr.setScale(sf::Vector2f(spr_scale, spr_scale));
 	//Making snake body sprite
 	snakeBodySpr.setTexture(snakeBodyTex);
@@ -122,12 +143,6 @@ int main() {
 	grassDarkSpr.setTexture(grassDarkTex);
 	grassDarkSpr.setScale(spr_scale, spr_scale);
 	grassDarkSpr.setPosition(0, 0);
-	//Making snake body
-	std::vector <snakeBody> snakeBodyArr;
-	snakeBody temp(snakeBodySpr);
-	for(int i=0; i<20; i++)
-		snakeBodyArr.push_back(temp);
-	
 	//Making food
 	sf::Image foodImage;
 	if (!foodImage.loadFromFile("Resources/food.png"))
@@ -149,9 +164,52 @@ int main() {
 	board mainBoard;
 	//Events
 	sf::Event mainEvent;
+	
+MAINEVENT:
+	//Making snake body
+	std::vector <snakeBody> snakeBodyArr;
+	snakeBody temp(snakeBodySpr);
+	snakePosX = 100;
+	snakePosY = 100;
+	for (int i = 0; i < 20; i++)
+		snakeBodyArr.push_back(temp);
+	currentGameState = GameState::Running;
 
 
 	while (mainWin.isOpen()) {
+
+
+		
+		if (currentGameState == GameState::GameOver) {
+			// Resetting snake body
+			for (int i = 0; i < score; i++) {
+				snakeBodyArr[i].isVisible = false;
+			}
+			// Resetting score
+			score = 0;
+			// Resetting snake's position multipliers
+			snakeX = 0;
+			snakeY = 0;
+			goto MAINEVENT;
+		}
+		
+
+		while (currentGameState == GameState::Paused) {
+			PausePrompt pausePrompt(&font);
+			pausePrompt.draw(&mainWin);
+			mainWin.display();
+			while (mainWin.pollEvent(mainEvent)) {
+				pausePrompt.draw(&mainWin);
+				mainWin.display();
+				if (mainEvent.type == sf::Event::Closed) {
+					return 0;
+				}
+				if (mainEvent.key.code == sf::Keyboard::Return) {
+					currentGameState = GameState::Running;
+					break;
+				}
+			}
+		}
 
 		mainWin.clear(sf::Color(255, 255, 255));
 
@@ -166,6 +224,8 @@ int main() {
 		//Drawing grass
 		mainBoard.drawGrass(&mainWin, &grassLightSpr, &grassDarkSpr);
 
+		//Drawing border
+		mainBoard.drawBorder(&mainWin);
 
 		//Storing snake's last seen position
 		int headLastSeenX = snakePosX, headLastSeenY = snakePosY;
@@ -175,28 +235,35 @@ int main() {
 		snakePosX += 4 * snakeX;			//snakeX = -1 or 1
 		snakePosY += 4 * snakeY;
 		// std:: cout << snakePosX << std::endl;
-		if ((food.x > snakePosX - 20) && (food.x < snakePosX + 20) && (food.y > snakePosY - 20) && (food.y < snakePosY + 20)) {
+		if ((food.x > snakePosX - 20.0) && (food.x < snakePosX + 20.0) && (food.y > snakePosY - 20.0) && (food.y < snakePosY + 20.0)) {
 			std::cout << "Snake and food's coordinates clashed!\n";
 			// std::cout << "food.x: " << food.x << std::endl;
 			food.changePosition();
-			// Working here
 			std::cout << "snakePosX: " << snakePosX << std::endl;
-			//transparent here
 			if (score < snakeBodyArr.size()) {
 				snakeBodyArr[score].isVisible = true;
 				score++;
 			}
 		}
 
-		if (snakePosX > 571)
+		if (snakePosX > 571 ) {
+			currentGameState = GameState::GameOver;
 			snakePosX = 0;
-		if (snakePosY > 571)
+		}
+		if (snakePosY > 571 )
+		{
+			currentGameState = GameState::GameOver;
 			snakePosY = 0;
-		if (snakePosX < 0)
+		}
+		if (snakePosX < 0) {
+			currentGameState = GameState::GameOver;
 			snakePosX = 571;
+		}
 		if (snakePosY < 0)
+		{
+			currentGameState = GameState::GameOver;
 			snakePosY = 571;
-
+		}
 
 		snakeHeadSpr.setPosition(snakePosX, snakePosY);
 
@@ -207,6 +274,9 @@ int main() {
 		headPos.pop();
 		snakeBodyArr[0].body.setPosition(headLast.x, headLast.y);
 		snakeBodyArr[0].bodyQue.push(headLast);
+
+		//Updating score
+		scoreText.setString(std::to_string(score));
 
 		//Updating snake body texture on direction change
 		//Vertical set
@@ -227,8 +297,6 @@ int main() {
 				snakeBodyArr[i].body.setTexture(snakeBodyTex);
 			}
 		}
-
-		// error
 		for (int i = 1; i < snakeBodyArr.size(); i++)
 		{
 			sf::Vector2<int> currPos = snakeBodyArr[i - 1].bodyQue.front();
@@ -247,6 +315,8 @@ int main() {
 		{
 			mainWin.draw((snakeBodyArr[i].getBody()));
 		}
+		//Drawing score
+		mainWin.draw(scoreText);
 
 		mainWin.display();
 
@@ -261,29 +331,41 @@ int main() {
 
 				switch (mainEvent.key.code) {
 
+				case 36: {
+					std::cout << "Pressed!" << std::endl;
+					currentGameState = GameState::Paused;
+				}
+				break;
 				case 71: //Left
-					snakeX = -1;
-					snakeY = 0;
-					snakeHeadTex.loadFromImage(snakeHeadLeft);
+					if (snakeX != 1) {
+						snakeX = -1;
+						snakeY = 0;
+						snakeHeadTex.loadFromImage(snakeHeadLeft);
+					}
 					break;
 
 				case 73: //Up
-					snakeY = -1;
-					snakeX = 0;
-					snakeHeadTex.loadFromImage(snakeHeadUp);
-					break;
+					if (snakeY != 1) {
+						snakeY = -1;
+						snakeX = 0;
+						snakeHeadTex.loadFromImage(snakeHeadUp);
+					}break;
 
 				case 72: //Right
-					snakeX = 1;
-					snakeY = 0;
-					snakeHeadTex.loadFromImage(snakeHeadRight);
-					break;
+					if (snakeX != -1)
+					{
+						snakeX = 1;
+						snakeY = 0;
+						snakeHeadTex.loadFromImage(snakeHeadRight);
+					}break;
 
 				case 74: //Down
-					snakeY = 1;
-					snakeX = 0;
-					snakeHeadTex.loadFromImage(snakeHeadDown);
-					break;
+					if (snakeY != -1)
+					{
+						snakeY = 1;
+						snakeX = 0;
+						snakeHeadTex.loadFromImage(snakeHeadDown);
+					}break;
 				}
 			}
 		}

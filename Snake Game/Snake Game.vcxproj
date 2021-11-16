@@ -151,6 +151,8 @@
     <ClCompile Include="board.cpp" />
     <ClCompile Include="food.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pause_prompt.cpp" />
+    <ClCompile Include="snake_body.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,6 @@
 #pragma once;
 #include <iostream>
+#include <assert.h>
 #include <SFML/Graphics.hpp>
 #include <queue>
 
@@ -10,7 +11,43 @@ class board {
 public:
 
 	sf::RectangleShape line;
+	sf::Texture horizontalBrick;
+	sf::Sprite horizontalBrickSprite;
+	sf::Texture verticalBrick;
+	sf::Sprite verticalBrickSprite;
 
+	sf::Vector2f vSpriteSize;
+	sf::Vector2f hSpriteSize;
+
+	board() {
+		if(!horizontalBrick.loadFromFile("Resources/brick_horizontal.png")){
+			assert(false && "Failed to load Resources/brick_horizontal.png");
+		}
+		horizontalBrickSprite.setTexture(horizontalBrick);
+		horizontalBrickSprite.setScale(0.15, 0.15);
+		horizontalBrickSprite.setPosition(0, 0);
+
+		if (!verticalBrick.loadFromFile("Resources/brick_vertical.png")) {
+			assert(false && "Faild to load Resources/brick_vertical.png");
+		}
+
+		verticalBrickSprite.setTexture(verticalBrick);
+		verticalBrickSprite.setScale(0.15, 0.15);
+		verticalBrickSprite.setPosition(0, 0);
+
+
+		const sf::Vector2f spriteSize(
+			horizontalBrickSprite.getTexture()->getSize().x * horizontalBrickSprite.getScale().x,
+			horizontalBrickSprite.getTexture()->getSize().y * horizontalBrickSprite.getScale().y);
+		hSpriteSize.x = spriteSize.x;
+		hSpriteSize.y = spriteSize.y;
+
+		const sf::Vector2f verticalSpriteSize(
+			verticalBrickSprite.getTexture()->getSize().x * verticalBrickSprite.getScale().x,
+			verticalBrickSprite.getTexture()->getSize().y * verticalBrickSprite.getScale().y);
+		vSpriteSize.x = verticalSpriteSize.x;
+		vSpriteSize.y = verticalSpriteSize.y;
+	}
 
 	void drawGrass(sf::RenderWindow* mainWin, sf::Sprite* grassLight, sf::Sprite* grassDark)
 	{
@@ -61,40 +98,25 @@ public:
 
 	}
 
+	void drawBorder(sf::RenderWindow* mainWin) {
+
+		// Drawing horizontal wall
+		for (double i = 0; i < mainWin->getSize().x; i += hSpriteSize.x - 0.5) {
+			horizontalBrickSprite.setPosition(i, 0);
+			mainWin->draw(horizontalBrickSprite);
+			horizontalBrickSprite.setPosition(i, mainWin->getSize().y - hSpriteSize.y);
+			mainWin->draw(horizontalBrickSprite);
+		}
+		
+		// Drawing vertical wall
+		for (double i = 0; i < mainWin->getSize().y; i += vSpriteSize.y - 0.5) {
+			verticalBrickSprite.setPosition(0, i);
+			mainWin->draw(verticalBrickSprite);
+			verticalBrickSprite.setPosition(mainWin->getSize().x - vSpriteSize.x, i);
+			mainWin->draw(verticalBrickSprite);
+		}
+
+	}
+
 };
 
-
-
-class snakeBody
-{
-public:
-	bool isVisible = false;
-	sf::Sprite specialBody;
-	sf::Sprite body;
-	std::queue<sf::Vector2<int>> bodyQue;
-
-	sf::Sprite getBody() {
-		if (isVisible)
-			return body;
-		else return specialBody;
-	}
-
-	snakeBody(sf::Sprite tempBody)
-	{
-		body = tempBody;
-		for (int i = 0; i < 11; i++)
-		{
-			bodyQue.push(sf::Vector2<int>(0, 0));
-		}
-	}
-	snakeBody(sf::Sprite tempBody, sf::Texture* tempSpecialBody, int x, int y) {
-		body = tempBody;
-		specialBody.setTexture(*tempSpecialBody);
-		for (int i = 0; i < 11; i++)
-		{
-			bodyQue.push(sf::Vector2<int>(x, y));
-			body.setPosition(x, y);
-		}
-		std::cout << "set the position of body to: " << x << std::endl;
-	}
-};

@@ -13,8 +13,8 @@ public:
 		this->foodSprite.setPosition(x, y);
 	}
 	std::pair<int, int> changePosition() {
-		this->x = abs(rand() % 471);
-		this->y = abs(rand() % 471);
+		this->x = 35.0 + abs(rand() % 435);
+		this->y = 35.0 + abs(rand() % 435);
 		foodSprite.setPosition(x, y);
 		return std::make_pair(x, y);
 	}
