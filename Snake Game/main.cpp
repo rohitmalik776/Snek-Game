@@ -29,7 +29,7 @@ int main() {
 	sf::Text scoreText;
 	scoreText.setFont(font);
 	scoreText.setFillColor(sf::Color::Black);
-	scoreText.setPosition(530, 0);
+	scoreText.setPosition(510, 30);
 	scoreText.setCharacterSize(30);
 	//A queue to make the body follow the head
 	std::queue<sf::Vector2<int>> headPos;
