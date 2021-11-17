@@ -8,6 +8,8 @@
 #include "board.cpp"
 #include "food.cpp"
 #include "pause_prompt.cpp"
+#include "game_over.cpp"
+
 int blockside = 41;
 int score = 0;
 
@@ -20,11 +22,18 @@ enum class GameState {
 int main() {
 	srand(time(0));
 	GameState currentGameState = GameState::Running;
+	GameOver gameOverPrompt;
+
+	//Importing app icon
+	sf::Image icon;
+	if (!icon.loadFromFile("Resources/icon.png")) {
+		assert(false && "Error loading icon.png");
+	}
 
 	//Importing fonts
 	sf::Font font;
 	if(!(font.loadFromFile("Resources/Raleway-Bold.ttf"))){
-		std::cout << "Error loading font file!" << std::endl;
+		assert(false && "Error loading font file!");
 	}
 	sf::Text scoreText;
 	scoreText.setFont(font);
@@ -46,6 +55,8 @@ int main() {
 	//Setting up Window
 	sf::RenderWindow mainWin(sf::VideoMode(574, 574), "snek", sf::Style::Close);
 	mainWin.setFramerateLimit(60);
+	mainWin.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+
 	//Importing Images
 	//Importing background images
 	sf::Image grassLightImg;
@@ -178,34 +189,97 @@ MAINEVENT:
 
 
 	while (mainWin.isOpen()) {
+	bool isReset = false;
 	
 		while (currentGameState == GameState::GameOver) {
-			// Resetting snake body
-			for (int i = 0; i < score; i++) {
-				snakeBodyArr[i].isVisible = false;
+			mainWin.clear();
+
+			//Drawing grid lines
+			mainBoard.drawGrid(&mainWin);
+
+			//Drawing grass
+			mainBoard.drawGrass(&mainWin, &grassLightSpr, &grassDarkSpr);
+
+			//Drawing border
+			mainBoard.drawBorder(&mainWin);
+
+			mainWin.draw(scoreText);
+
+
+			//Drawing food
+			mainWin.draw(food.foodSprite);
+
+			//Drawing snake head
+			mainWin.draw(snakeHeadSpr);
+			//Drawing snake body
+			for (int i = 0; i < snakeBodyArr.size() - 1; i++)
+			{
+				mainWin.draw((snakeBodyArr[i].getBody()));
 			}
-			// Resetting score
-			score = 0;
-			// Resetting snake's position multipliers
-			snakeX = 0;
-			snakeY = 0;
+
+			gameOverPrompt.draw(&mainWin);
+
+			mainWin.display();
+			if (!isReset) {
+				// Resetting snake body
+				for (int i = 0; i < score; i++) {
+					snakeBodyArr[i].isVisible = false;
+				}
+				// Resetting score
+				score = 0;
+				// Resetting snake's position multipliers
+				snakeX = 0;
+				snakeY = 0;
+				snakePosX = 100;
+				snakePosY = 100;
+			}
+			isReset = true;
+			
 			while (mainWin.pollEvent(mainEvent)) {
+
 				if (mainEvent.type == sf::Event::Closed) {
 					return 0;
 				}
 				if (mainEvent.key.code == sf::Keyboard::R) {
 					currentGameState = GameState::Running;
+					isReset = false;
 					break;
 				}
 			}
 			if(currentGameState != GameState::GameOver)
 				goto MAINEVENT;
 		}
-		
 
 		while (currentGameState == GameState::Paused) {
-			PausePrompt pausePrompt(&font);
+			PausePrompt pausePrompt;
+
+			mainWin.clear();
+
+			//Drawing grid lines
+			mainBoard.drawGrid(&mainWin);
+
+			//Drawing grass
+			mainBoard.drawGrass(&mainWin, &grassLightSpr, &grassDarkSpr);
+
+			//Drawing border
+			mainBoard.drawBorder(&mainWin);
+
+			mainWin.draw(scoreText);
+
+
+			//Drawing food
+			mainWin.draw(food.foodSprite);
+
+			//Drawing snake head
+			mainWin.draw(snakeHeadSpr);
+			//Drawing snake body
+			for (int i = 0; i < snakeBodyArr.size() - 1; i++)
+			{
+				mainWin.draw((snakeBodyArr[i].getBody()));
+			}
+
 			pausePrompt.draw(&mainWin);
+
 			mainWin.display();
 			while (mainWin.pollEvent(mainEvent)) {
 				pausePrompt.draw(&mainWin);
@@ -223,8 +297,8 @@ MAINEVENT:
 		mainWin.clear(sf::Color(255, 255, 255));
 
 		//Drawing grass sprites
-		mainWin.draw(grassLightSpr);
-		mainWin.draw(grassDarkSpr);
+		//mainWin.draw(grassLightSpr);
+		//mainWin.draw(grassDarkSpr);
 
 
 		//Drawing grid lines
@@ -341,7 +415,6 @@ MAINEVENT:
 				switch (mainEvent.key.code) {
 
 				case 36: {
-					std::cout << "Pressed!" << std::endl;
 					currentGameState = GameState::Paused;
 				}
 				break;
