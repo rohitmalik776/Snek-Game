@@ -4,8 +4,6 @@
 #include <SFML/Graphics.hpp>
 #include <queue>
 
-
-
 class board {
 
 public:
@@ -58,6 +56,7 @@ public:
 				grassLight->setPosition(x, y);
 				grassDark->setPosition(x, y);
 
+				// i&1 implies i is odd or not
 				if (i & 1 && j & 1)
 				{
 					mainWin->draw(*grassLight);

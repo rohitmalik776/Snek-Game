@@ -9,7 +9,6 @@ public:
 	Food(sf::Sprite foodSprite) {
 		this->foodSprite = foodSprite;
 		std::pair<int, int> newPos = changePosition();
-		std::cout << newPos.first << " " << newPos.second << std::endl;
 		this->foodSprite.setPosition(x, y);
 	}
 	std::pair<int, int> changePosition() {

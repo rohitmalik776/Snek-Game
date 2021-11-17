@@ -40,6 +40,7 @@ int main() {
 	scoreText.setFillColor(sf::Color::Black);
 	scoreText.setPosition(510, 30);
 	scoreText.setCharacterSize(30);
+
 	//A queue to make the body follow the head
 	std::queue<sf::Vector2<int>> headPos;
 	for (int i = 0; i < 11; i++) 
@@ -220,6 +221,7 @@ MAINEVENT:
 			gameOverPrompt.draw(&mainWin);
 
 			mainWin.display();
+
 			if (!isReset) {
 				// Resetting snake body
 				for (int i = 0; i < score; i++) {
@@ -281,6 +283,7 @@ MAINEVENT:
 			pausePrompt.draw(&mainWin);
 
 			mainWin.display();
+
 			while (mainWin.pollEvent(mainEvent)) {
 				pausePrompt.draw(&mainWin);
 				mainWin.display();
@@ -295,11 +298,6 @@ MAINEVENT:
 		}
 
 		mainWin.clear(sf::Color(255, 255, 255));
-
-		//Drawing grass sprites
-		//mainWin.draw(grassLightSpr);
-		//mainWin.draw(grassDarkSpr);
-
 
 		//Drawing grid lines
 		mainBoard.drawGrid(&mainWin);
@@ -317,7 +315,7 @@ MAINEVENT:
 		//Drawing snake
 		snakePosX += 4 * snakeX;			//snakeX = -1 or 1
 		snakePosY += 4 * snakeY;
-		// std:: cout << snakePosX << std::endl;
+
 		if ((food.x > snakePosX - 20.0) && (food.x < snakePosX + 20.0) && (food.y > snakePosY - 20.0) && (food.y < snakePosY + 20.0)) {
 			std::cout << "Snake and food's coordinates clashed!\n";
 			// std::cout << "food.x: " << food.x << std::endl;
@@ -350,7 +348,6 @@ MAINEVENT:
 
 		snakeHeadSpr.setPosition(snakePosX, snakePosY);
 
-
 		//Updating snake body position
 		headPos.push(sf::Vector2<int>(snakePosX, snakePosY));
 		sf::Vector2<int> headLast = headPos.front();
@@ -380,6 +377,7 @@ MAINEVENT:
 				snakeBodyArr[i].body.setTexture(snakeBodyTex);
 			}
 		}
+		//Updating snake body positions
 		for (int i = 1; i < snakeBodyArr.size(); i++)
 		{
 			sf::Vector2<int> currPos = snakeBodyArr[i - 1].bodyQue.front();
