@@ -12,11 +12,14 @@ class PausePrompt
 	sf::Font boldFont;
 
 public:
-	PausePrompt() {
-		if (!lightFont.loadFromFile("Resources/Raleway-ExtraLight.ttf")) {
+	PausePrompt()
+	{
+		if (!lightFont.loadFromFile("Resources/Raleway-ExtraLight.ttf"))
+		{
 			std::cout << "Unable to load raleway light fonts\n";
 		}
-		if (!boldFont.loadFromFile("Resources/Raleway-Black.ttf")) {
+		if (!boldFont.loadFromFile("Resources/Raleway-Black.ttf"))
+		{
 			assert(false && "Can't load Raleway-Black.ttf");
 		}
 		box.setSize(sf::Vector2f(200, 200));
@@ -37,10 +40,12 @@ public:
 		pauseSubText.setString("Press Enter key to continue...");
 		pauseSubText.setScale(0.5, 0.5);
 	}
-	sf::RectangleShape getSprite() {
+	sf::RectangleShape getSprite()
+	{
 		return box;
 	}
-	void draw(sf::RenderWindow* mainWin) {
+	void draw(sf::RenderWindow *mainWin)
+	{
 		mainWin->draw(box);
 		mainWin->draw(pauseText);
 		mainWin->draw(pauseSubText);

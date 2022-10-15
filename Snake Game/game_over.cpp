@@ -12,11 +12,14 @@ class GameOver
 	sf::Font boldFont;
 
 public:
-	GameOver() {
-		if (!lightFont.loadFromFile("Resources/Raleway-ExtraLight.ttf")) {
+	GameOver()
+	{
+		if (!lightFont.loadFromFile("Resources/Raleway-ExtraLight.ttf"))
+		{
 			std::cout << "Unable to load raleway light fonts\n";
 		}
-		if (!boldFont.loadFromFile("Resources/Raleway-Black.ttf")) {
+		if (!boldFont.loadFromFile("Resources/Raleway-Black.ttf"))
+		{
 			assert(false && "Can't load Raleway-Black.ttf");
 		}
 		box.setSize(sf::Vector2f(200, 200));
@@ -37,10 +40,12 @@ public:
 		gameOverSubText.setString("Press R key to restart");
 		gameOverSubText.setScale(0.6, 0.6);
 	}
-	sf::RectangleShape getSprite() {
+	sf::RectangleShape getSprite()
+	{
 		return box;
 	}
-	void draw(sf::RenderWindow* mainWin) {
+	void draw(sf::RenderWindow *mainWin)
+	{
 		mainWin->draw(box);
 		mainWin->draw(gameOverText);
 		mainWin->draw(gameOverSubText);

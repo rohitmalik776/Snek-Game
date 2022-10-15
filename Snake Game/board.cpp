@@ -1,13 +1,13 @@
-#pragma once;
+#pragma once
 #include <iostream>
 #include <assert.h>
 #include <SFML/Graphics.hpp>
 #include <queue>
 
-class board {
+class board
+{
 
 public:
-
 	sf::RectangleShape line;
 	sf::Texture horizontalBrick;
 	sf::Sprite horizontalBrickSprite;
@@ -17,22 +17,24 @@ public:
 	sf::Vector2f vSpriteSize;
 	sf::Vector2f hSpriteSize;
 
-	board() {
-		if(!horizontalBrick.loadFromFile("Resources/brick_horizontal.png")){
+	board()
+	{
+		if (!horizontalBrick.loadFromFile("Resources/brick_horizontal.png"))
+		{
 			assert(false && "Failed to load Resources/brick_horizontal.png");
 		}
 		horizontalBrickSprite.setTexture(horizontalBrick);
 		horizontalBrickSprite.setScale(0.15, 0.15);
 		horizontalBrickSprite.setPosition(0, 0);
 
-		if (!verticalBrick.loadFromFile("Resources/brick_vertical.png")) {
+		if (!verticalBrick.loadFromFile("Resources/brick_vertical.png"))
+		{
 			assert(false && "Faild to load Resources/brick_vertical.png");
 		}
 
 		verticalBrickSprite.setTexture(verticalBrick);
 		verticalBrickSprite.setScale(0.15, 0.15);
 		verticalBrickSprite.setPosition(0, 0);
-
 
 		const sf::Vector2f spriteSize(
 			horizontalBrickSprite.getTexture()->getSize().x * horizontalBrickSprite.getScale().x,
@@ -47,7 +49,7 @@ public:
 		vSpriteSize.y = verticalSpriteSize.y;
 	}
 
-	void drawGrass(sf::RenderWindow* mainWin, sf::Sprite* grassLight, sf::Sprite* grassDark)
+	void drawGrass(sf::RenderWindow *mainWin, sf::Sprite *grassLight, sf::Sprite *grassDark)
 	{
 		for (int x = 0, j = 0; x < 574; x += 41, j++)
 		{
@@ -67,12 +69,10 @@ public:
 		}
 	}
 
-
-	void drawGrid(sf::RenderWindow* mainWin)
+	void drawGrid(sf::RenderWindow *mainWin)
 	{
 
-
-		//Drawing Grid
+		// Drawing Grid
 		line.setFillColor(sf::Color(0, 0, 0, 50));
 		line.setSize(sf::Vector2f(551, 01));
 
@@ -81,41 +81,40 @@ public:
 		line.setPosition(0, y);
 		line.setPosition(x, 0);
 
-		//Drawing Vertical Lines
+		// Drawing Vertical Lines
 		for (; y <= 550; y += 11)
 		{
 			line.setPosition(0, y);
 			mainWin->draw(line);
 		}
-		//Drawing Horizontal Lines
+		// Drawing Horizontal Lines
 		line.setSize(sf::Vector2f(1, 551));
 		for (; x <= 550; x += 11)
 		{
 			line.setPosition(x, 0);
 			mainWin->draw(line);
 		}
-
 	}
 
-	void drawBorder(sf::RenderWindow* mainWin) {
+	void drawBorder(sf::RenderWindow *mainWin)
+	{
 
 		// Drawing horizontal wall
-		for (double i = 0; i < mainWin->getSize().x; i += hSpriteSize.x - 0.5) {
+		for (double i = 0; i < mainWin->getSize().x; i += hSpriteSize.x - 0.5)
+		{
 			horizontalBrickSprite.setPosition(i, 0);
 			mainWin->draw(horizontalBrickSprite);
 			horizontalBrickSprite.setPosition(i, mainWin->getSize().y - hSpriteSize.y);
 			mainWin->draw(horizontalBrickSprite);
 		}
-		
+
 		// Drawing vertical wall
-		for (double i = 0; i < mainWin->getSize().y; i += vSpriteSize.y - 0.5) {
+		for (double i = 0; i < mainWin->getSize().y; i += vSpriteSize.y - 0.5)
+		{
 			verticalBrickSprite.setPosition(0, i);
 			mainWin->draw(verticalBrickSprite);
 			verticalBrickSprite.setPosition(mainWin->getSize().x - vSpriteSize.x, i);
 			mainWin->draw(verticalBrickSprite);
 		}
-
 	}
-
 };
-
